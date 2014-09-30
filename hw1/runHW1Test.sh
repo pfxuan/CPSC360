@@ -82,7 +82,7 @@ else
     echo "GRADER: server can not recieve messages!"
   fi
   if [ $serverClientIPs -ge 1 ]; then
-    echo "GRADER: server only can get IP addresses from clients (+10)."
+    echo "GRADER: server only can get IP addresses from clients (+20)."
     P12=20
   else 
     echo "GRADER: server can not get IP addresses from clients!"
