@@ -333,8 +333,8 @@ fi
 
 echo -e "\n===> Test 6 score (10 points max): $P6 <===\n\n\n"
 
-rm -f ${TMPDIR}/*
-rmdir ${TMPDIR}
+#rm -f ${TMPDIR}/*
+#rmdir ${TMPDIR}
 
 ### Test 7: Code style and readability
 echo "*** Test 7: Code style and readability ***"
