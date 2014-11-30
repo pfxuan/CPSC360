@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/home/pxuan/software/ruby/bin/ruby
 
 require 'socket'
 require 'optparse'

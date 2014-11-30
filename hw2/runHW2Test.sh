@@ -1,4 +1,5 @@
-#!/home/pxuan/software/ruby/bin/ruby
+#!/bin/bash
+
 echo "===| CPSC 360: Testing Cases Summary for HW #2 |==="
 echo "Test 0: Compiling"
 echo "Test 1: Simple DNS query with single answer"
