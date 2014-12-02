@@ -202,7 +202,7 @@ echo -e "===> Test 3 score (10 points max): $P3 <===\n\n\n"
 ### Test 4: 400
 echo "*** Test 4: 400 ***"
 sleep 2
-./simhttp -p 8084 ${TESTDOCROOT}/200 &> ${TMPDIR}/serverLog4 &
+./simhttp -p 8084 ${TESTDOCROOT}/200 > ${TMPDIR}/serverLog4 &
 sleep 2
 test4Out=`printf "GET Web server should suppose gotten 400 error\r\n\r\n" | nc localhost 8084 | grep -i "400 Bad Request" | wc -l & sleep 2; killall -q -9 nc &> /dev/null` 
 sleep 2
