@@ -171,11 +171,17 @@ else
 fi
 
 if [ $serverOut1 -eq 0  ]; then
-  echo -e "GRADER: File permissions test (server-side) -> Failed."
+  if [ $serverOut2 -eq 0  ]; then
+    echo -e "GRADER: File permissions test (server-side) -> Failed."
+  else
+    echo -e "GRADER: File sandbox test (server-side) -> Partially Passed (400, not 403)  (+2).\n"
+    P3=$[$P3+2]
+  fi
 else
   echo -e "GRADER: File permissions test (server-side) -> Passed (+3)."
-  P3=$[$P3+3]
+  P3=$[$P3+5]
 fi
+
 if [ $clientOut2 -eq 0  ] && [ $clientOut2a -eq 0 ]; then
   echo -e "GRADER: File sandbox test (client-side) -> Failed."
 elif [ $clientOut2 -eq 0 ] && [ $clientOut2a -eq 1 ]; then
@@ -187,12 +193,6 @@ elif [ $clientOut2 -eq 1 ] && [ $clientOut2a -eq 0 ]; then
 else
   echo -e "GRADER: File sandbox test (client-side) -> Partially Passed (unexpected errors) (+1)"
   P3=$[$P3+1]
-fi
-if [ $serverOut2 -eq 0  ]; then
-  echo -e "GRADER: File sandbox test (server-side) -> Failed.\n"
-else
-  echo -e "GRADER: File sandbox test (server-side) -> Passed (+2).\n"
-  P3=$[$P3+2]
 fi
 
 echo -e "===> Test 3 score (10 points max): $P3 <===\n\n\n"
