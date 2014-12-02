@@ -53,9 +53,9 @@ fi
 echo "*** Test 1: Simple web query ***"
 #echo ${TESTDOCROOT}/200
 sleep 2
-./simhttp -p 8080 ${TESTDOCROOT}/200 2>&1 | grep -i "GET.*mypage.*200" > ${TMPDIR}/serverLog1 &
+./simhttp -p 8080 ${TESTDOCROOT}/200 | grep -i "GET.*mypage.*200" > ${TMPDIR}/serverLog1 &
 sleep 2
-simpleResults=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8080 2>&1  | grep "1.1 200 OK\|My\ Title\|Hello\ World" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+simpleResults=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8080  | grep "1.1 200 OK\|My\ Title\|Hello\ World" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 killall -q -9 simhttp &> /dev/null
 
 sync
@@ -99,9 +99,9 @@ echo -e "===> Test 1 score (40 points max): $P1 <===\n\n\n"
 ### Test 2: 404 
 echo "*** Test 2: 404 ***"
 sleep 2
-./simhttp -p 8082 ${TESTDOCROOT}/404 2>&1 | grep -i "GET.*mypage.*404" > ${TMPDIR}/serverLog2 &
+./simhttp -p 8082 ${TESTDOCROOT}/404 | grep -i "GET.*mypage.*404" > ${TMPDIR}/serverLog2 &
 sleep 2
-test2Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8082 2>&1 | grep -i "404" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+test2Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8082 | grep -i "404" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 killall -q -9 simhttp &> /dev/null
 sync
 sleep 2
@@ -135,14 +135,14 @@ sleep 2
 sleep 2
 
 #try file permissions
-test3Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8083 2>&1 & sleep 1; killall -q -9 nc &> /dev/null`
+test3Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8083 & sleep 1; killall -q -9 nc &> /dev/null`
 killall -q -9 simhttp &> /dev/null
 
 #try sandboxing
 sleep 2
 ./simhttp -p 8093 ${TESTDOCROOT}/403 >> ${TMPDIR}/serverLog3 &
 sleep 2
-test3bOut=`printf "GET /../200/mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8093 &> ${TMPDIR}/clientLog3 & sleep 2; killall -q -9 nc &> /dev/null`
+test3bOut=`printf "GET /../200/mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8093 > ${TMPDIR}/clientLog3 & sleep 2; killall -q -9 nc &> /dev/null`
 sleep 2
 killall -q -9 simhttp &> /dev/null
 sync
@@ -237,7 +237,7 @@ echo "*** Test 5: 405 ***"
 sleep 2
 ./simhttp -p 8085 ${TESTDOCROOT}/200 &> ${TMPDIR}/serverLog5 &
 sleep 2
-test5Out=`printf "POST /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8085 2>&1 | grep "405" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+test5Out=`printf "POST /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8085 | grep "405" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 killall -q -9 simhttp &> /dev/null
 
 sync
@@ -267,34 +267,34 @@ echo -e "\n===> Test 5 score (10 points max): $P5 <===\n\n\n"
 echo "*** Test 6: Content-Type html, htm, css, js, txt, jpg, pdf and octet-stream ***"
 ./simhttp -p 8086 ${TESTDOCROOT}/mime &>/dev/null &
 sleep 2
-test6css=`printf "GET /css/bootstrap.css HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8086 2>&1 | grep "text/css" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+test6css=`printf "GET /css/bootstrap.css HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8086 | grep "text/css" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 sleep 1
 killall -q -9 simhttp &> /dev/null
 sleep 1
 
 ./simhttp -p 8087 ${TESTDOCROOT}/mime &>/dev/null &
 sleep 2
-test6jpeg=`printf "GET /img/intro-bg.jpg HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8087 2>&1 | grep "image/jpeg" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+test6jpeg=`printf "GET /img/intro-bg.jpg HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8087 | grep "image/jpeg" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 sleep 1
 killall -q -9 simhttp &> /dev/null
 sleep 1
 
 ./simhttp -p 8088 ${TESTDOCROOT}/mime &>/dev/null &
 sleep 2
-test6javascript=`printf "GET /js/bootstrap.js HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8088 2>&1 | grep "application/javascript" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+test6javascript=`printf "GET /js/bootstrap.js HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8088 | grep "application/javascript" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 sleep 1
 killall -q -9 simhttp &> /dev/null
 
 sleep 2
 ./simhttp -p 8089 ${TESTDOCROOT}/mime &>/dev/null &
 sleep 2
-test6other=`printf "GET /fonts/glyphicons-halflings-regular.eot HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8089 2>&1 | grep "application/octet-stream" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+test6other=`printf "GET /fonts/glyphicons-halflings-regular.eot HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8089 | grep "application/octet-stream" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 killall -q -9 simhttp &> /dev/null
 
 sleep 2
 ./simhttp -p 8090 ${TESTDOCROOT}/mime &>/dev/null &
 sleep 2
-test6txt=`printf "GET /readme.txt HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8090 2>&1 | grep "plain" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
+test6txt=`printf "GET /readme.txt HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8090 | grep "plain" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 sleep 1
 killall -q -9 simhttp &> /dev/null
 sleep 1
