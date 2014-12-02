@@ -19,7 +19,7 @@ chmod 000 ${TESTDOCROOT}/403/mypage.html
 echo -e "Below is the detail of the grading for your submission.\n\n"
 ### Test 0: Compiling Test
 echo "*** Test 0: Compiling ***"
-tar xzf *.tgz &> /dev/null; tar xzf *.tar.gz &> /dev/null; tar xf *.tar &> /dev/null
+tar xzf *.tgz &> /dev/null; tar xf *.tar &> /dev/null; tar xf *.tgz &> /dev/null; tar xzf *.tar &> /dev/null;
 make clean &> /dev/null
 warningcount=`make 2>&1 | grep -i "warning:" | wc -l`
 if [ $warningcount -ge 1 ]; then
