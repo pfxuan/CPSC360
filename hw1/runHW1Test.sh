@@ -228,10 +228,10 @@ sleep 1
 serverLog=$(cat <&3)
 echo -e "ServerLog: $serverLog"
 serverMsgRec=$(echo $serverLog | grep -E '[0-9]+\s+[3-9]+' | wc -l)
-serverClientIPs=$(echo $serverLog | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | uniq | wc -l )
+serverClientIPs=$(echo $serverLog | grep -oE "127.0.0.1.*,.*\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | uniq | wc -l )
 
 P5=0;P50=0;P51=0;P52=0
-if [ $serverMsgRec -ge 1 ] && [ $serverClientIPs -ge 2 ]; then
+if [ $serverMsgRec -ge 1 ] && [ $serverClientIPs -ge 1 ]; then
 	echo -e "GRADER: get a correct result from server side (+10)."
   P50=10
 else
