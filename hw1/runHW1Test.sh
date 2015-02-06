@@ -5,17 +5,13 @@ echo "Test 1: Simple functionality test"
 echo "Test 2: Timeout test"
 echo "Test 3: CTRL-C test"
 echo "Test 4: Multiple attempts test"
-echo "Test 5: Multiple breakers test"
+echo "Test 5: Multiple guessers test"
 echo -e "Test 6: Documentation and coding style\n"
-
-echo -e "Below is the detailed grading results for your submission.\n\n\n"
-
 
 
 ### Test 0: Compiling Test
 echo "*** Test 0: Compiling ***"
-tar xzf *.tgz &> /dev/null; tar xzf *.tar.gz &> /dev/null; tar xf *.tar &> /dev/null
-cd * &> /dev/null
+tar xzf *.tgz &> /dev/null; tar xzf *.tar.gz &> /dev/null
 make clean &> /dev/null; make depend &> /dev/null
 warningcount=`make 2>&1 | grep -i "warning" | wc -l`
 P0=0
@@ -23,24 +19,24 @@ if [ $warningcount -ge 1 ]; then
 	echo -e "${warningcount} compiler warnings found!!!"
 fi
 
-if [ -e passwordBreaker ] && [ -e passwordServer ]; then
+if [ -e valueGuesser ] && [ -e valueServer ]; then
   echo -e "GRADER: Test Result -> Passed.\n"
   echo -e "===> Test 0 score (10 points max): 10.0 <===\n\n\n"
   P0=10
 else 
   echo -e "GRADER: Test Result -> Failed!!!\n"
-  echo -e "(Cannot find the execution file ./passwordBreaker or ./passwordServer)\n"
+  echo -e "(Cannot find the execution file ./valueGuesser or ./valueServer)\n"
   echo -e "===> Test 0 score (10 points max): 0.0 <===\n\n\n"
   P0=0
 fi
   
 ### "Killing previous zombie processors"
-killall -q -9 passwordBreaker &> /dev/null
-killall -q -9 passwordServer &> /dev/null
+killall -q -9 valueGuesser &> /dev/null
+killall -q -9 valueServer &> /dev/null
 sleep 1
 
-chkPort5000=`netstat -an | grep :5000 | wc -l`
-chkPort5001=`netstat -an | grep :5001 | wc -l`
+chkPort5000=`netstat -an | grep ':5000 ' | wc -l`
+chkPort5001=`netstat -an | grep ':5001 ' | wc -l`
 if [ $chkPort5000 -ge 1 ] || [ $chkPort5001 -ge 1 ]; then
   sleep 65
 fi
@@ -52,17 +48,17 @@ fi
 # A simple test using password 'a1'.
 #
 # 1) Start server
-# 2) Start breaker 
+# 2) Start guesser 
 # 3) Wait 5 secs 
 # 4) Stop server
 # 5) Check server log
 ##########################################
 echo "*** Test 1: Simple functionality test ***"
-exec 3< <(./passwordServer 5001 2 a1 2>&1)
+exec 3< <(stdbuf -o0 ./valueServer 5001 123456)
 sleep 1
-./passwordBreaker 127.0.0.1 5001 2 &> /dev/null & sleep 5; killall -q -9 passwordBreaker &> /dev/null
-sleep 1
-killall -q -s SIGINT passwordServer &> /dev/null; killall -q -9 passwordServer &> /dev/null
+./valueGuesser 127.0.0.1 5001 &> /dev/null & sleep 5; killall -q -9 valueGuesser &> /dev/null
+sleep 5
+killall -q -s SIGINT valueServer &> /dev/null; killall -q -9 valueServer &> /dev/null
 sleep 1
 serverLog=$(cat <&3)
 echo -e "ServerLog: $serverLog"
@@ -77,7 +73,7 @@ else
 	echo -e "GRADER: can not correctly catch result from server side!"
   if [ $serverMsgRec -ge 1 ]; then
     echo "GRADER: server only can receive messages (+30)."
-    P11=20
+    P11=30
   else 
     echo "GRADER: server can not recieve messages!"
   fi
@@ -97,9 +93,9 @@ sleep 2
 
 ### Test 2: Timeout test (10 points max) ###
 # 
-# Test timeout for breaker by breaking server
+# Test timeout for guesser by breaking server
 # 
-# 1) Start breaker
+# 1) Start guesser
 # 2) Wait 2 secs 
 # 3) Start server
 # 4) Wait 2 secs 
@@ -107,12 +103,12 @@ sleep 2
 # 6) Check server log
 ##########################################
 echo "*** Test 2: Timeout test ***"
-./passwordBreaker 127.0.0.1 5002 2 &> /dev/null &
+./valueGuesser 127.0.0.1 5002 &> /dev/null &
 sleep 2
-exec 3< <(./passwordServer 5002 2 a1 2>&1)
+exec 3< <(stdbuf -o0 ./valueServer 5002)
 sleep 2
-killall -q -s SIGINT passwordServer &> /dev/null; killall -q -9 passwordServer &> /dev/null
-killall -q -9 passwordBreaker &> /dev/null
+killall -q -s SIGINT valueServer &> /dev/null; killall -q -9 valueServer &> /dev/null
+killall -q -9 valueGuesser &> /dev/null
 sleep 1
 serverLog=$(cat <&3)
 echo -e "ServerLog: $serverLog"
@@ -137,24 +133,24 @@ sleep 2
 # Test state machine in server by issuing CTRL-C
 # 
 # 1) Start server
-# 2) Start breaker 
+# 2) Start guesser 
 # 3) Wait 5 secs 
 # 4) Interrupt server
-# 5) Stop breaker 
+# 5) Stop guesser 
 # 6) Check server log
 ##########################################
 echo "*** Test 3: CTRL-C test ***"
-exec 3< <(./passwordServer 5003 7 GoTiger 2>&1)
+exec 3< <(stdbuf -o0 ./valueServer 5003)
 sleep 1
-./passwordBreaker 127.0.0.1 5003 7 &> /dev/null &
+./valueGuesser 127.0.0.1 5003 &> /dev/null &
 sleep 5
-killall -q -s SIGINT passwordServer &> /dev/null; killall -q -9 passwordServer &> /dev/null
+killall -q -s SIGINT valueServer &> /dev/null; sleep 1; killall -q -9 valueServer &> /dev/null
 sleep 1
-killall -q -9 passwordBreaker &> /dev/null
+killall -q -9 valueGuesser &> /dev/null
 sleep 1
 serverLog=$(cat <&3)
 echo -e "ServerLog: $serverLog"
-serverMsgRec=$(echo $serverLog | grep -E '[0-9]+\s+0' | wc -l)
+serverMsgRec=$(echo $serverLog | grep -E '[0-9]+\s+1' | wc -l)
 serverClientIPs=$(echo $serverLog | grep -E '127.0.0.1' | wc -l)
 
 P3=0;P30=0;P31=0;P32=0
@@ -176,28 +172,28 @@ sleep 2
 # Test multiple requests from the same machine
 # 
 # 1) Start server
-# 2) Breaker attempt 1
-# 3) Breaker attempt 1
-# 4) Breaker attempt 1
+# 2) Guesser attempt 1
+# 3) Guesser attempt 1
+# 4) Guesser attempt 1
 # 5) Stop server
 # 6) Check server log
 ##########################################
 echo "*** Test 4: Multiple attempts test ***"
-exec 3< <(./passwordServer 5004 1 a 2>&1)
+exec 3< <(stdbuf -o0 ./valueServer 5004)
 sleep 1
-./passwordBreaker 127.0.0.1 5004 1 &> /dev/null & sleep 2; killall -q -9 passwordBreaker &> /dev/null
-./passwordBreaker 127.0.0.1 5004 1 &> /dev/null & sleep 2; killall -q -9 passwordBreaker &> /dev/null
-./passwordBreaker 127.0.0.1 5004 1 &> /dev/null & sleep 2; killall -q -9 passwordBreaker &> /dev/null
+./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
+./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
+./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
 sleep 1
-killall -q -s SIGINT passwordServer &> /dev/null; killall -q -9 passwordServer &> /dev/null
+killall -q -s SIGINT valueServer &> /dev/null; killall -q -9 valueServer &> /dev/null
 sleep 1
 serverLog=$(cat <&3)
 echo -e "ServerLog: $serverLog"
 serverMsgRec=$(echo $serverLog | grep -E '[0-9]+\s+3' | wc -l)
-serverClientIPs=$(echo $serverLog | grep -E '127.0.0.1' | wc -l)
+serverClientIPs=$(echo $serverLog | grep -E '127.0.0.1.*,.*127.0.0.1.*,.*127.0.0.1' | wc -l)
 
 P40=0
-if [ $serverMsgRec -ge 1 ] && [ $serverClientIPs -ge 1 ]; then
+if [ $serverMsgRec -ge 1 ] || [ $serverClientIPs -ge 1 ]; then
 	echo -e "GRADER: get a correct result from server side (+10)."
   P40=10
 else
@@ -209,25 +205,25 @@ echo -e "\n===> Test 4 score (10 points max): $P4 <===\n\n\n"
 sleep 2
 
 
-### Test 5: Multiple Breakers test (10 points max) ###
+### Test 5: Multiple Guessers test (10 points max) ###
 # 
 # Test multiple clients support requested from different machines
 # 
 # 1) Start server
-# 2) Start breaker 1
-# 3) Start breaker 2
+# 2) Start guesser 1
+# 3) Start guesser 2
 # 4) Stop server
 # 6) Check server log
 ##########################################
-echo "*** Test 5: Multiple breakers test ***"
+echo "*** Test 5: Multiple guessers test ***"
 hostIP=$(hostname -i)
-exec 3< <(./passwordServer 5005 1 a 2>&1)
+exec 3< <(stdbuf -o0 ./valueServer 5005)
 sleep 1
-./passwordBreaker 127.0.0.1 5005 1 &> /dev/null & sleep 2; killall -q -9 passwordBreaker &> /dev/null
-./passwordBreaker $hostIP 5005 1 &> /dev/null & sleep 2; killall -q -9 passwordBreaker &> /dev/null
-ssh imp22 "${PWD}/passwordBreaker $hostIP 5005 1 &> /dev/null & sleep 2; killall -q -9 passwordBreaker &> /dev/null"
+./valueGuesser 127.0.0.1 5005 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
+./valueGuesser $hostIP 5005 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
+ssh imp22 "${PWD}/valueGuesser $hostIP 5005 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null"
 sleep 1
-killall -q -s SIGINT passwordServer &> /dev/null; killall -q -9 passwordServer &> /dev/null
+killall -q -s SIGINT valueServer &> /dev/null; killall -q -9 valueServer &> /dev/null
 sleep 1
 serverLog=$(cat <&3)
 echo -e "ServerLog: $serverLog"
