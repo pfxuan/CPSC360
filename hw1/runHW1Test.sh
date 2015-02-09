@@ -181,9 +181,9 @@ sleep 2
 echo "*** Test 4: Multiple attempts test ***"
 exec 3< <(stdbuf -o0 ./valueServer 5004)
 sleep 1
-./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
-./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
-./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
+./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 10; killall -q -9 valueGuesser &> /dev/null
+./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 10; killall -q -9 valueGuesser &> /dev/null
+./valueGuesser 127.0.0.1 5004 &> /dev/null & sleep 10; killall -q -9 valueGuesser &> /dev/null
 sleep 1
 killall -q -s SIGINT valueServer &> /dev/null; killall -q -9 valueServer &> /dev/null
 sleep 1
