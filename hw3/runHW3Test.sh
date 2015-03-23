@@ -1,6 +1,5 @@
 #!/bin/bash
-
-echo "===| Testing Cases Summary for HW #3 |==="
+echo "===| Testing Cases Summary |==="
 echo "Test 0: Compiling"
 echo "Test 1: Simple web query"
 echo "Test 2: 404"
@@ -8,25 +7,24 @@ echo "Test 3: 403"
 echo "Test 4: 400"
 echo "Test 5: 405"
 echo "Test 6: Content-Type"
-echo -e "Test 7: Code style and readability\n"
+echo "Test 7: HTTP client"
+echo -e "Test 8: Code style and readability\n"
 
 TESTDOCROOT="./docs"
 TMPDIR=`mktemp --tmpdir=/dev/shm -dt "hw3Test.XXXXXXXXXX"`
 chmod 000 ${TESTDOCROOT}/403/mypage.html
-#echo "DOCROOT = $TESTDOCROOT"
-#echo "TMPDIR = $TMPDIR"
 
 echo -e "Below is the detail of the grading for your submission.\n\n"
 ### Test 0: Compiling Test
 echo "*** Test 0: Compiling ***"
-tar xzf *.tgz &> /dev/null; tar xf *.tar &> /dev/null; tar xf *.tgz &> /dev/null; tar xzf *.tar &> /dev/null;
+tar xzf *.tar.gz &> /dev/null
 make clean &> /dev/null
 warningcount=`make 2>&1 | grep -i "warning:" | wc -l`
 if [ $warningcount -ge 1 ]; then
 	echo -e "\nCompiler warnings found.\n"
 fi
 
-if [ -e simhttp ]; then
+if [ -e simhttp ] && [ -e simget ]; then
   echo -e "GRADER: Test Result -> Passed.\n"
   echo -e "===> Compiling score (10 points max): 10.0 <===\n\n\n"
   P0=10
@@ -53,7 +51,7 @@ fi
 echo "*** Test 1: Simple web query ***"
 #echo ${TESTDOCROOT}/200
 sleep 2
-./simhttp -p 8080 ${TESTDOCROOT}/200 | grep -i "GET.*mypage.*200" > ${TMPDIR}/serverLog1 &
+stdbuf -o0 ./simhttp -p 8080 ${TESTDOCROOT}/200 | grep -i "GET.*mypage.*200" > ${TMPDIR}/serverLog1 &
 sleep 2
 simpleResults=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8080  | grep "1.1 200 OK\|My\ Title\|Hello\ World" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 killall -q -9 simhttp &> /dev/null
@@ -64,7 +62,7 @@ simpleServerOut=`cat ${TMPDIR}/serverLog1 | wc -l`
 sleep 1
 
 if [ $simpleResults -eq 0 ]; then
-  ./simhttp -p 8079 ./ &
+  ./simhttp -p 8079 ./ &> /dev/null &
   sleep 2
   testPortResult=`nc localhost 8079 -z 2>&1 |  grep "unable to connect to address localhost" | wc -l`
   #testPortResult=`nc localhost 8079 -z | wc -l`
@@ -99,13 +97,13 @@ echo -e "===> Test 1 score (40 points max): $P1 <===\n\n\n"
 ### Test 2: 404 
 echo "*** Test 2: 404 ***"
 sleep 2
-./simhttp -p 8082 ${TESTDOCROOT}/404 | grep -i "GET.*mypage.*404" > ${TMPDIR}/serverLog2 &
+stdbuf -o0 ./simhttp -p 8082 ${TESTDOCROOT}/404 | grep -i "GET.*mypage.*404" > ${TMPDIR}/serverLog2 &
 sleep 2
 test2Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8082 | grep -i "404" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 killall -q -9 simhttp &> /dev/null
 sync
 sleep 2
-cat ${TMPDIR}/serverLog2
+#cat ${TMPDIR}/serverLog2
 serverOut=`cat ${TMPDIR}/serverLog2 | wc -l`
 echo $serverOut
 
@@ -131,16 +129,16 @@ echo -e "===> Test 2 score (10 points max): $P2 <===\n\n\n"
 ### Test 3: 403 
 echo "*** Test 3: 403 ***"
 sleep 2
-./simhttp -p 8083 ${TESTDOCROOT}/403 > ${TMPDIR}/serverLog3 &
+stdbuf -o0 ./simhttp -p 8083 ${TESTDOCROOT}/403 > ${TMPDIR}/serverLog3 &
 sleep 2
 
 #try file permissions
-test3Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8083 & sleep 1; killall -q -9 nc &> /dev/null`
+test3Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8083 2>&1 & sleep 1; killall -q -9 nc &> /dev/null`
 killall -q -9 simhttp &> /dev/null
 
 #try sandboxing
 sleep 2
-./simhttp -p 8093 ${TESTDOCROOT}/403 >> ${TMPDIR}/serverLog3 &
+stdbuf -o0 ./simhttp -p 8093 ${TESTDOCROOT}/403 >> ${TMPDIR}/serverLog3 &
 sleep 2
 test3bOut=`printf "GET /../200/mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8093 > ${TMPDIR}/clientLog3 & sleep 2; killall -q -9 nc &> /dev/null`
 sleep 2
@@ -202,7 +200,7 @@ echo -e "===> Test 3 score (10 points max): $P3 <===\n\n\n"
 ### Test 4: 400
 echo "*** Test 4: 400 ***"
 sleep 2
-./simhttp -p 8084 ${TESTDOCROOT}/200 > ${TMPDIR}/serverLog4 &
+stdbuf -o0 ./simhttp -p 8084 ${TESTDOCROOT}/200 > ${TMPDIR}/serverLog4 &
 sleep 2
 test4Out=`printf "GET Web server should suppose gotten 400 error\r\n\r\n" | nc localhost 8084 | grep -i "400 Bad Request" | wc -l & sleep 2; killall -q -9 nc &> /dev/null` 
 sleep 2
@@ -235,7 +233,7 @@ echo -e "\n===> Test 4 score (10 points max): $P4 <===\n\n\n"
 ### Test 5: 405
 echo "*** Test 5: 405 ***"
 sleep 2
-./simhttp -p 8085 ${TESTDOCROOT}/200 &> ${TMPDIR}/serverLog5 &
+stdbuf -o0 ./simhttp -p 8085 ${TESTDOCROOT}/200 &> ${TMPDIR}/serverLog5 &
 sleep 2
 test5Out=`printf "POST /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8085 | grep "405" | wc -l & sleep 1; killall -q -9 nc &> /dev/null` 
 killall -q -9 simhttp &> /dev/null
@@ -333,16 +331,32 @@ fi
 
 echo -e "\n===> Test 6 score (10 points max): $P6 <===\n\n\n"
 
-#rm -f ${TMPDIR}/*
-#rmdir ${TMPDIR}
 
-### Test 7: Code style and readability
-echo "*** Test 7: Code style and readability ***"
-echo -e "\n===> Test 7 score (10 points max): 10.0 <==="
-P7=10
+
+### Test 7: HTTP Client
+echo "*** Test 7: HTTP Client ***"
+sleep 2
+test7Out=$(stdbuf -o0 ./simget http://www.cs.clemson.edu/help/index.html -p 80 | grep "McAdams" | wc -l & sleep 1; killall -q -9 simget &> /dev/null)
+
+P7=0
+if [ $test7Out -ge 1 ]; then
+	echo -e "GRADER: HTTP client output correct (+40)."
+	P7=40
+else
+	echo -e "GRADER: HTTP client output incorrect (0)!!!"
+	P7=0
+fi
+
+echo -e "===> Test 7 score (40 points max): $P7 <===\n\n\n"
+
+
+### Test 8: Code style and readability
+echo "*** Test 8: Code style and readability ***"
+echo -e "\n===> Test 8 score (10 points max): 10.0 <==="
+P8=10
 
 
 ### Calculate total score 
 echo -e "\n\n\n---------------------------------"
-echo -e "Total Score (110 points max): $[$P0+$P1+$P2+$P3+$P4+$P5+$P6+$P7]"
+echo -e "Total Score (150 points max): $[$P0+$P1+$P2+$P3+$P4+$P5+$P6+$P7+$P8]"
 echo -e "---------------------------------"
