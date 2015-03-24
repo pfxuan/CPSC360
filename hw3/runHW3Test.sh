@@ -30,7 +30,7 @@ if [ -e simhttp ] && [ -e simget ]; then
   P0=10
 else 
   echo -e "GRADER: Test Result -> Failed!!!\n"
-  echo -e "(Cannot find the execution file ./simhttp)\n"
+  echo -e "(Cannot find the execution file ./simhttp or ./simget)\n"
   echo -e "===> Test 0 score (10 points max): 0.0 <===\n\n\n"
   P0=0
 fi
