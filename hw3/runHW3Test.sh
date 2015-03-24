@@ -103,9 +103,7 @@ test2Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc loc
 killall -q -9 simhttp &> /dev/null
 sync
 sleep 2
-#cat ${TMPDIR}/serverLog2
 serverOut=`cat ${TMPDIR}/serverLog2 | wc -l`
-echo $serverOut
 
 P2=0
 if [ $serverOut -eq 0 ]; then
@@ -133,7 +131,7 @@ stdbuf -o0 ./simhttp -p 8083 ${TESTDOCROOT}/403 > ${TMPDIR}/serverLog3 &
 sleep 2
 
 #try file permissions
-test3Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8083 2>&1 & sleep 1; killall -q -9 nc &> /dev/null`
+test3Out=`printf "GET /mypage.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8083 2>&1 & sleep 5; killall -q -9 nc &> /dev/null`
 killall -q -9 simhttp &> /dev/null
 
 #try sandboxing
