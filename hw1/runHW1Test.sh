@@ -45,7 +45,7 @@ fi
 
 ### Test 1: Simple functionality test (50 points max) ###
 #
-# A simple test using password 'a1'.
+# A simple test using password '123456'.
 #
 # 1) Start server
 # 2) Start guesser 
