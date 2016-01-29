@@ -140,7 +140,7 @@ sleep 2
 # 6) Check server log
 ##########################################
 echo "*** Test 3: CTRL-C test ***"
-exec 3< <(stdbuf -o0 ./valueServer 5003)
+exec 3< <(stdbuf -o0 ./valueServer -p 5003)
 sleep 1
 ./valueGuesser -s 127.0.0.1 -p1 5003 -p2 9003 &> /dev/null &
 sleep 5
