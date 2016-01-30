@@ -216,7 +216,7 @@ sleep 2
 # 6) Check server log
 ##########################################
 echo "*** Test 5: Multiple guessers test ***"
-hostIP=$(hostname -i)
+hostIP=$(hostname -I | cut -d ' ' -f1)
 exec 3< <(stdbuf -o0 ./valueServer -p 5005)
 sleep 1
 ./valueGuesser -s 127.0.0.1 -p1 5005 -p2 9005 &> /dev/null & sleep 2; killall -q -9 valueGuesser &> /dev/null
