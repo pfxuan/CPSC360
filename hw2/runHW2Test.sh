@@ -13,6 +13,7 @@ echo -e "Test 6: Code style and readability\n"
 echo -e "Below is the detail of the grading for your original submission.\n"
 ### Test 0: Compiling Test
 echo "*** Test 0: Compiling ***"
+killall -9 -q ruby &> /dev/null
 tar xzf *-hw2.tar.gz &> /dev/null
 make clean &> /dev/null
 make
@@ -35,6 +36,7 @@ GRADIP=`./dnsq @130.127.255.250 www.grad.clemson.edu | sed '/^$/d' | tail -n 1 |
 rm -f /dev/shm/${USER}/RevPass &> /dev/null
 /home/pxuan/software/ruby/bin/ruby ./testserver.rb & sleep 1
 LOCALTTL=`./dnsq -p 5300 @127.0.0.1 www.grad.clemson.edu | sed '/^$/d' | tail -n 1 | awk '{print $3}' & sleep 2; killall -q -9 dnsq &> /dev/null`
+killall -9 -q ruby &> /dev/null
 if [ "$CSIP" = "130.127.201.228" ] && [ "$GRADIP" = "130.127.235.49" ]; then
   echo -e "DEBUGGER: Test Result -> Passed.\n"
   echo -e "===> Test 1 score (40 points max): 40.0 <===\n\n\n"
@@ -57,7 +59,7 @@ rm -f /dev/shm/${USER}/RevPass &> /dev/null
 echo "*** Test 2: TTL ***"
 /home/pxuan/software/ruby/bin/ruby ./testserver.rb & sleep 1
 LOCALTTL=`./dnsq -p 5300 @127.0.0.1 www.grad.clemson.edu 2>&1 | grep 115 | wc -l & sleep 2; killall -q -9 dnsq &> /dev/null`
-killall -q ruby &> /dev/null
+killall -9 -q ruby &> /dev/null
 CSTTL=`./dnsq @130.127.255.250 www.cs.clemson.edu 2>&1 | grep 3600 | wc -l & sleep 2; killall -q -9 dnsq &> /dev/null` 
 
 if [ $LOCALTTL -eq 0 ] && [ $CSTTL -eq 0 ]; then 
@@ -118,7 +120,7 @@ fi
 echo "*** Test 5: Retries (Your program needs to support port number 5300) ***"
 /home/pxuan/software/ruby/bin/ruby ./testserver.rb -i 3 & sleep 1
 LOCALIP=`./dnsq -t 1 -r 5 -p 5300 @127.0.0.1 www.grad.clemson.edu | sed '/^$/d' |  tail -n 1 | awk '{print $2}' & sleep 8; killall -q -9 dnsq`
-killall -q ruby &> /dev/null
+killall -9 -q ruby &> /dev/null
 if [ "$LOCALIP" = "130.127.235.49" ] || [ "$LOCALIP" = "allvirtual.clemson.edu" ]; then
   echo -e "DEBUGGER: Test Result -> Passed.\n"
   echo -e "===> Test 5 score (10 points max): 10.0 <===\n\n\n"
