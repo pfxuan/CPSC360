@@ -334,7 +334,7 @@ echo -e "\n===> Test 6 score (10 points max): $P6 <===\n\n\n"
 ### Test 7: HTTP Client
 echo "*** Test 7: HTTP Client ***"
 sleep 2
-test7Out=$(stdbuf -o0 ./simget http://www.cs.clemson.edu/help/index.html -p 80 | grep "McAdams" | wc -l & sleep 7; killall -q -9 simget &> /dev/null)
+test7Out=$(stdbuf -o0 ./simget http://www.cs.clemson.edu/help/index.html -p 80 | grep "Moved Permanently" | wc -l & sleep 7; killall -q -9 simget &> /dev/null)
 
 P7=0
 if [ $test7Out -ge 1 ]; then
